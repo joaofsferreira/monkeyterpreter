@@ -1,22 +1,22 @@
 package parser
 
 import (
-	"monkey/ast"
-	"monkey/token"
-	"monkey/lexer"
 	"fmt"
+	"monkey/ast"
+	"monkey/lexer"
+	"monkey/token"
 )
 
 type Parser struct {
-	l *lexer.Lexer
-	curToken token.Token
+	l         *lexer.Lexer
+	curToken  token.Token
 	peekToken token.Token
-	errors []string
+	errors    []string
 }
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
-		l: l,
+		l:      l,
 		errors: []string{},
 	}
 
@@ -61,9 +61,24 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
+	case token.RETURN:
+		return p.parseReturnStatement()
 	default:
 		return nil
 	}
+}
+
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	stmt := &ast.ReturnStatement{Token: p.curToken}
+
+	p.nextToken()
+
+	// skipping expressions for now
+	for !p.curTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return stmt
 }
 
 func (p *Parser) parseLetStatement() *ast.LetStatement {

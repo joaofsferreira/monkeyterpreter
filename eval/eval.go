@@ -32,6 +32,10 @@ func Eval(node ast.Node) object.Object {
 	case *ast.PrefixExpression:
 		right := Eval(node.Right)
 		return evalPrefixExpression(node.Operator, right)
+	case *ast.InfixExpression:
+		left := Eval(node.Left)
+		right := Eval(node.Right)
+		return evalInfixExpression(left, node.Operator, right)
 	}
 
 	return nil
@@ -58,6 +62,45 @@ func evalPrefixExpression(op string, right object.Object) object.Object {
 	}
 }
 
+func evalInfixExpression(left object.Object, op string, right object.Object) object.Object {
+	switch {
+	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
+		return evalIntegerInfixExpression(left, op, right)
+	case op == "==":
+		return nativeBoolToBooleanObject(left == right)
+	case op == "!=":
+		return nativeBoolToBooleanObject(left != right)
+	default:
+		return NULL
+	}
+}
+
+func evalIntegerInfixExpression(left object.Object, op string, right object.Object) object.Object {
+	leftVal := left.(*object.Integer).Value
+	rightVal := right.(*object.Integer).Value
+
+	switch op {
+	case "+":
+		return &object.Integer{Value: leftVal + rightVal}
+	case "-":
+		return &object.Integer{Value: leftVal - rightVal}
+	case "*":
+		return &object.Integer{Value: leftVal * rightVal}
+	case "/":
+		return &object.Integer{Value: leftVal / rightVal}
+	case "<":
+		return nativeBoolToBooleanObject(leftVal < rightVal)
+	case ">":
+		return nativeBoolToBooleanObject(leftVal > rightVal)
+	case "==":
+		return nativeBoolToBooleanObject(leftVal == rightVal)
+	case "!=":
+		return nativeBoolToBooleanObject(leftVal != rightVal)
+	default:
+		return NULL
+	}
+}
+
 func evalMinusPrefixOperator(right object.Object) object.Object {
 	if right.Type() != object.INTEGER_OBJ {
 		return NULL
@@ -65,6 +108,14 @@ func evalMinusPrefixOperator(right object.Object) object.Object {
 
 	value := right.(*object.Integer).Value
 	return &object.Integer{Value: -value}
+}
+
+func nativeBoolToBooleanObject(input bool) object.Object {
+	if input {
+		return TRUE
+	}
+
+	return FALSE
 }
 
 func evalBangOperator(right object.Object) object.Object {

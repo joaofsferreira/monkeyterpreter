@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"fmt"
 	"monkey/object"
 )
 
@@ -105,6 +106,16 @@ var builtins = map[string]*object.Builtin{
 			newArr := make([]object.Object, length+1, length+1)
 			copy(newArr, append(arr.Elements, args[1]))
 			return &object.Array{Elements: newArr}
+		},
+	},
+
+	"puts": &object.Builtin{
+		Fn: func(args ...object.Object) object.Object {
+			for _, arg := range args {
+				fmt.Println(arg.Inspect())
+			}
+
+			return NULL
 		},
 	},
 }

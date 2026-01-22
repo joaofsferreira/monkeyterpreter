@@ -27,6 +27,7 @@ const (
 	BANG      = "!"
 	ASTERISK  = "*"
 	SLASH     = "/"
+	COLON     = ":"
 
 	LPAREN   = "("
 	RPAREN   = ")"
